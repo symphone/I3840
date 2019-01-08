@@ -1,0 +1,54 @@
+﻿// Speaker
+// speakerPin->10
+#define c 261
+#define d 293
+#define e 329
+#define f 349
+#define g 392
+
+int CanonTone[] = { e,e,e,e,e,e,e,e,e,g,c,d,e, f,f,f,f,f,e,e,e,e,d,d,e,d,g,0 };
+
+int noteDurations[] = { 1, 1, 2, 1, 1, 2,0,0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2 }; 
+
+int length = sizeof(CanonTone); // 利用 sizeof()，算出總共要多少音符
+int tempo = 200; // 決定一拍多長，這邊一拍 200 ms
+int toneSpeed = 1800;
+int motor = 6;
+
+int speakerPin = 10;
+int i =0;
+int photocellPin = 2;
+int photocellVal = 0;
+void setup(){  
+  digitalWrite(photocellPin,INPUT);
+  Serial.begin(9600);
+  pinMode(motor,OUTPUT);
+}
+
+void loop(){
+  //music
+  // 如果是空白的話，不撥放音樂
+  photocellVal = analogRead(photocellPin);
+  Serial.println(photocellVal); 
+  if(photocellVal <500)
+  {
+        digitalWrite(motor,HIGH);  
+        if (CanonTone[i] == 0) {
+          noTone(speakerPin);
+          delay(CanonTone[i] * toneSpeed); // rest
+          i=-1;
+        } else {
+          int noteDuration = toneSpeed/noteDurations[i];  
+          tone(speakerPin, CanonTone[i],noteDuration);  
+        } 
+        // 每個音符之間的間隔，這邊設定的長短會有連音 or 段音的效果
+        delay(tempo/1); 
+        i=i+1;
+  }
+  else
+  {
+  noTone(speakerPin);
+  digitalWrite(motor,LOW); 
+  }
+  delay(100);
+}
